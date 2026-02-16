@@ -6,7 +6,7 @@ type ShippingReturnsPageProps = {
 
 const ShippingReturnsPage: React.FC<ShippingReturnsPageProps> = ({ onContact }) => {
   return (
-    <section className="bg-[#F6F1E8] text-[#1C1C1C] rounded-lg m-4 md:m-8 p-5 md:p-10">
+    <section className="bg-[#F6F1E8] text-[#1C1C1C] rounded-lg md:rounded-none m-4 md:m-0 p-5 md:p-10">
       <h1 className="text-3xl md:text-4xl font-light">Shipping & Returns</h1>
       <p className="mt-3 text-sm text-[#4D4D4D] max-w-3xl">
         Every order is packed in signature boxes and shipped with insured premium delivery.

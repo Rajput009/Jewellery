@@ -1,5 +1,5 @@
 import React from 'react';
-import { Heart, Search, ShoppingBag, User, X, Share2, Inbox } from 'lucide-react';
+import { X, Share2, Inbox } from 'lucide-react';
 
 type WishlistItem = {
   id: string;
@@ -83,66 +83,6 @@ const WishlistPage: React.FC = () => {
           </div>
         </div>
       </main>
-
-      <footer className="bg-[#0A3F30] text-[#E4DBCE] py-20 mt-20 border-t border-[rgba(198,167,94,0.15)]">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12">
-          <div>
-            <div className="flex items-center gap-2 mb-6">
-              <Heart size={24} className="text-[#F6F1E8]" />
-              <h2 className="font-serif text-2xl font-bold tracking-tight text-[#F6F1E8]">Eluxee</h2>
-            </div>
-            <p className="text-sm leading-relaxed text-[#E4DBCE] italic mb-6">
-              Crafting timeless elegance since 1924. Each piece tells a story of heritage and masterful artistry.
-            </p>
-            <div className="flex gap-4 text-[#F6F1E8]">
-              <Search size={18} className="hover:text-[#C6A75E] transition-colors" />
-              <Heart size={18} className="hover:text-[#C6A75E] transition-colors" />
-              <ShoppingBag size={18} className="hover:text-[#C6A75E] transition-colors" />
-              <User size={18} className="hover:text-[#C6A75E] transition-colors" />
-            </div>
-          </div>
-
-          <div>
-            <h4 className="text-xs uppercase tracking-[0.3em] font-bold mb-8 text-[#F6F1E8]">Client Service</h4>
-            <ul className="space-y-4 text-sm text-[#E4DBCE] font-medium">
-              <li>Contact Us</li>
-              <li>Book an Appointment</li>
-              <li>Care & Maintenance</li>
-              <li>Returns & Exchanges</li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-xs uppercase tracking-[0.3em] font-bold mb-8 text-[#F6F1E8]">The House</h4>
-            <ul className="space-y-4 text-sm text-[#E4DBCE] font-medium">
-              <li>Our Story</li>
-              <li>Sustainability</li>
-              <li>Craftsmanship</li>
-              <li>Boutiques</li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-xs uppercase tracking-[0.3em] font-bold mb-8 text-[#F6F1E8]">Privilege</h4>
-            <p className="text-xs text-[#E4DBCE] mb-6 italic">Join the circle for exclusive previews and events.</p>
-            <form className="flex border-b border-[rgba(198,167,94,0.2)] pb-2">
-              <input className="bg-transparent border-none focus:ring-0 text-sm w-full placeholder:text-[#E4DBCE]/60 outline-none" placeholder="Email Address" type="email" />
-              <button className="text-sm font-bold uppercase tracking-widest text-[#F6F1E8] hover:text-[#C6A75E] transition-colors" type="submit">
-                Subscribe
-              </button>
-            </form>
-          </div>
-        </div>
-
-        <div className="max-w-7xl mx-auto px-6 pt-20 mt-20 border-t border-[rgba(198,167,94,0.15)] flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] uppercase tracking-widest text-[#E4DBCE]/70">
-          <p>© 2024 Eluxee Jewelry. All Rights Reserved.</p>
-          <div className="flex gap-8">
-            <a className="hover:text-[#F6F1E8]" href="#">Privacy Policy</a>
-            <a className="hover:text-[#F6F1E8]" href="#">Terms of Use</a>
-            <a className="hover:text-[#F6F1E8]" href="#">Cookies</a>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 };

@@ -48,7 +48,7 @@ const NEW_ITEMS = [
 
 const NewArrivalsPage: React.FC = () => {
   return (
-    <section className="bg-[#F6F1E8] text-[#1C1C1C] m-4 md:m-8 rounded-lg p-6 md:p-10">
+    <section className="bg-[#F6F1E8] text-[#1C1C1C] m-4 md:m-0 rounded-lg md:rounded-none p-6 md:p-10">
       <div className="relative rounded-md overflow-hidden border border-[rgba(198,167,94,0.2)] mb-12">
         <div className="absolute inset-0 bg-gradient-to-r from-[#0A3F30] via-[#0E4F3C]/80 to-[#115A46]/40" />
         <div className="absolute inset-0 opacity-[0.04] bg-[radial-gradient(#F6F1E8_0.6px,transparent_0.6px)] [background-size:3px_3px]" />

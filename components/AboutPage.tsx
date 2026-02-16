@@ -3,7 +3,7 @@ import { Gem, Globe2, ShieldCheck } from 'lucide-react';
 
 const AboutPage: React.FC = () => {
   return (
-    <section className="bg-[#F6F1E8] text-[#1C1C1C] m-4 md:m-8 rounded-lg overflow-hidden border border-[rgba(198,167,94,0.15)]">
+    <section className="bg-[#F6F1E8] text-[#1C1C1C] m-4 md:m-0 rounded-lg md:rounded-none overflow-hidden border border-[rgba(198,167,94,0.15)]">
       <div className="relative px-8 md:px-14 py-16 bg-gradient-to-r from-[#0A3F30] via-[#0E4F3C] to-[#115A46] text-[#F6F1E8]">
         <p className="text-xs uppercase tracking-[0.3em] text-[#E4DBCE]">The House of Eluxee</p>
         <h1 className="font-serif text-4xl md:text-6xl italic mt-3">About</h1>

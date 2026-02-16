@@ -7,7 +7,7 @@ type ContactPageProps = {
 
 const ContactPage: React.FC<ContactPageProps> = ({ onOpenFaq }) => {
   return (
-    <section className="bg-[#F6F1E8] text-[#1C1C1C] rounded-lg m-4 md:m-8 p-5 md:p-10">
+    <section className="bg-[#F6F1E8] text-[#1C1C1C] rounded-lg md:rounded-none m-4 md:m-0 p-5 md:p-10">
       <h1 className="text-3xl md:text-4xl font-light">Contact Concierge</h1>
       <p className="mt-3 max-w-2xl text-sm md:text-base text-[#4D4D4D] leading-relaxed">
         Our jewelry advisors are available daily for styling, order help, and bespoke requests.

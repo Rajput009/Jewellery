@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowUpRight, Play } from 'lucide-react';
 import { HERO_IMAGES } from '../constants';
+import ScrollReveal from './ScrollReveal';
 
 const Hero: React.FC = () => {
   return (
@@ -14,7 +15,7 @@ const Hero: React.FC = () => {
 
       <div className="relative border-t border-[rgba(198,167,94,0.2)] pt-6 sm:pt-8 lg:hidden">
         <div className="flex flex-col gap-8 sm:gap-10">
-          <div className="pt-2">
+          <ScrollReveal className="pt-2">
             <h1 className="font-sans text-4xl sm:text-5xl font-black uppercase tracking-[-0.03em] text-[#F6F1E8] leading-[0.92] [text-shadow:0_5px_14px_rgba(0,0,0,0.45)]">
               Celebrate
               <br />
@@ -37,9 +38,9 @@ const Hero: React.FC = () => {
                 Book Concierge
               </button>
             </div>
-          </div>
+          </ScrollReveal>
 
-          <div className="relative bg-[#EFE7DA] text-[#1C1C1C] shadow-[0_8px_24px_rgba(10,63,48,0.12)] overflow-hidden min-h-[300px] sm:min-h-[360px]">
+          <div className="load-rise load-rise-delay-1 relative bg-[#EFE7DA] text-[#1C1C1C] shadow-[0_8px_24px_rgba(10,63,48,0.12)] overflow-hidden min-h-[300px] sm:min-h-[360px]">
             <div className="p-6 sm:p-8 w-[48%] sm:w-[44%] relative z-10">
               <p className="text-xs font-bold tracking-wide uppercase text-[#1C1C1C]/70">Premium-quality</p>
               <h2 className="mt-2 text-3xl sm:text-4xl font-black uppercase leading-[0.9]">
@@ -57,16 +58,19 @@ const Hero: React.FC = () => {
               <img
                 src={HERO_IMAGES.HAND_MODEL}
                 alt="Gold ring on hand"
+                loading="eager"
+                fetchPriority="high"
+                decoding="async"
                 className="w-full h-full object-cover object-center mix-blend-multiply"
               />
             </div>
 
-            <button aria-label="View gold plated ring details" className="absolute right-0 bottom-0 w-12 h-12 sm:w-16 sm:h-16 bg-[#0A3F30] text-[#C6A75E] flex items-center justify-center hover:bg-[#115A46] transition-colors border border-[rgba(198,167,94,0.2)]">
-              <ArrowUpRight size={20} className="sm:w-6 sm:h-6" />
+            <button aria-label="View gold plated ring details" className="group absolute right-0 bottom-0 w-12 h-12 sm:w-16 sm:h-16 bg-[#0A3F30] text-[#C6A75E] flex items-center justify-center hover:bg-[#115A46] transition-colors border border-[rgba(198,167,94,0.2)]">
+              <ArrowUpRight size={20} className="arrow-nudge sm:w-6 sm:h-6" />
             </button>
           </div>
 
-          <div className="relative bg-[#EFE7DA] text-[#1C1C1C] shadow-[0_8px_24px_rgba(10,63,48,0.12)] w-full max-w-[320px] min-h-[138px]">
+          <ScrollReveal delayMs={110} className="relative bg-[#EFE7DA] text-[#1C1C1C] shadow-[0_8px_24px_rgba(10,63,48,0.12)] w-full max-w-[320px] min-h-[138px]">
             <div className="flex items-center p-4 sm:p-5">
               <div className="w-[52%]">
                 <span className="text-xs font-bold tracking-wide uppercase leading-none text-[#C6A75E]">Premium</span>
@@ -82,18 +86,20 @@ const Hero: React.FC = () => {
                   <img
                     src={HERO_IMAGES.RING_DETAIL}
                     alt="Diamond Ring"
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover object-center"
                   />
                 </div>
               </div>
             </div>
 
-            <button aria-label="View diamond gold ring details" className="absolute -bottom-4 -right-4 sm:-bottom-5 sm:-right-5 w-10 h-10 sm:w-12 sm:h-12 bg-[#0A3F30] text-[#C6A75E] flex items-center justify-center hover:bg-[#115A46] transition-colors border border-[rgba(198,167,94,0.2)]">
-              <ArrowUpRight size={18} className="sm:w-5 sm:h-5" />
+            <button aria-label="View diamond gold ring details" className="group absolute -bottom-4 -right-4 sm:-bottom-5 sm:-right-5 w-10 h-10 sm:w-12 sm:h-12 bg-[#0A3F30] text-[#C6A75E] flex items-center justify-center hover:bg-[#115A46] transition-colors border border-[rgba(198,167,94,0.2)] float-soft">
+              <ArrowUpRight size={18} className="arrow-nudge sm:w-5 sm:h-5" />
             </button>
-          </div>
+          </ScrollReveal>
 
-          <div className="bg-[#EFE7DA] text-[#1C1C1C] shadow-[0_8px_24px_rgba(10,63,48,0.12)] overflow-hidden">
+          <div className="load-rise load-rise-delay-2 bg-[#EFE7DA] text-[#1C1C1C] shadow-[0_8px_24px_rgba(10,63,48,0.12)] overflow-hidden">
             <div className="relative h-[220px] sm:h-[250px]">
               <div className="absolute left-0 top-0 h-full w-[46%] p-4 sm:p-5 z-10">
                 <h3 className="text-base sm:text-lg font-extrabold uppercase leading-none">Exclusive Set</h3>
@@ -115,12 +121,14 @@ const Hero: React.FC = () => {
               <img
                 src={HERO_IMAGES.WOMAN_MODEL}
                 alt="Model wearing jewelry"
+                loading="lazy"
+                decoding="async"
                 className="absolute right-0 bottom-0 h-full w-[58%] object-cover object-center"
               />
             </div>
           </div>
 
-          <div className="h-[88px] border border-[rgba(198,167,94,0.2)] bg-[#0A3F30]/35 backdrop-blur-sm px-4 sm:px-6 flex items-center justify-between">
+          <ScrollReveal delayMs={170} className="h-[88px] border border-[rgba(198,167,94,0.2)] bg-[#0A3F30]/35 backdrop-blur-sm px-4 sm:px-6 flex items-center justify-between">
             <div className="flex items-baseline gap-1 text-[#F6F1E8]">
               <span className="text-[52px] sm:text-[62px] leading-none font-semibold">14</span>
               <span className="text-[38px] sm:text-[46px] leading-none font-light">+</span>
@@ -130,13 +138,13 @@ const Hero: React.FC = () => {
               <br />
               Celebration
             </p>
-          </div>
+          </ScrollReveal>
         </div>
       </div>
 
       <div className="relative border-t border-[rgba(198,167,94,0.2)] pt-10 hidden lg:block">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
-          <div className="lg:col-span-7">
+          <ScrollReveal className="lg:col-span-7">
             <div className="max-w-[760px] min-h-[280px]">
               <h1 className="font-sans text-5xl md:text-6xl lg:text-[86px] font-black uppercase tracking-[-0.03em] text-[#F6F1E8] leading-[0.88] [text-shadow:0_5px_14px_rgba(0,0,0,0.45)]">
                 Celebrate
@@ -162,9 +170,9 @@ const Hero: React.FC = () => {
                 </button>
               </div>
             </div>
-          </div>
+          </ScrollReveal>
 
-          <div className="lg:col-span-5 lg:flex lg:justify-end">
+          <ScrollReveal delayMs={90} className="lg:col-span-5 lg:flex lg:justify-end">
             <div className="relative w-full lg:max-w-[420px] min-h-[260px]">
               <div className="absolute top-5 right-14 w-full max-w-[300px] h-[138px] bg-[#EFE7DA] text-[#1C1C1C] shadow-[0_8px_24px_rgba(10,63,48,0.12)] border border-[rgba(198,167,94,0.2)] overflow-hidden flex">
                 <div className="w-[52%] p-4">
@@ -181,21 +189,23 @@ const Hero: React.FC = () => {
                     <img
                       src={HERO_IMAGES.RING_DETAIL}
                       alt="Diamond Ring"
+                      loading="eager"
+                      decoding="async"
                       className="w-full h-full object-cover object-center"
                     />
                   </div>
                 </div>
               </div>
 
-              <button aria-label="View diamond gold ring details" className="absolute top-[158px] right-[-12px] w-[68px] h-[68px] bg-[#0A3F30] text-[#C6A75E] flex items-center justify-center transition-colors hover:bg-[#115A46] border border-[rgba(198,167,94,0.2)]">
-                <ArrowUpRight size={28} />
+              <button aria-label="View diamond gold ring details" className="group absolute top-[158px] right-[-12px] w-[68px] h-[68px] bg-[#0A3F30] text-[#C6A75E] flex items-center justify-center transition-colors hover:bg-[#115A46] border border-[rgba(198,167,94,0.2)]">
+                <ArrowUpRight size={28} className="arrow-nudge" />
               </button>
             </div>
-          </div>
+          </ScrollReveal>
         </div>
 
         <div className="mt-4 grid grid-cols-1 lg:grid-cols-12 gap-7 items-end">
-          <div className="lg:col-span-7 relative min-h-[380px]">
+          <div className="load-rise load-rise-delay-1 lg:col-span-7 relative min-h-[380px]">
             <div className="absolute left-0 bottom-0 w-full md:w-[calc(100%-96px)] min-h-[210px] bg-[#EFE7DA] text-[#1C1C1C] shadow-[0_8px_24px_rgba(10,63,48,0.12)] p-8 md:p-9 overflow-visible">
               <p className="text-[28px] font-medium tracking-tight text-[#1C1C1C]/80">Premium-quality</p>
               <h2 className="text-[48px] leading-[0.9] font-black uppercase mt-2">
@@ -210,17 +220,19 @@ const Hero: React.FC = () => {
                 <img
                   src={HERO_IMAGES.HAND_MODEL}
                   alt="Gold ring on hand"
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover object-center mix-blend-multiply"
                 />
               </div>
 
-              <button aria-label="View gold plated ring details" className="absolute right-6 bottom-6 w-[66px] h-[66px] bg-[#0A3F30] text-[#C6A75E] flex items-center justify-center transition-colors hover:bg-[#115A46] border border-[rgba(198,167,94,0.2)]">
-                <ArrowUpRight size={26} />
+              <button aria-label="View gold plated ring details" className="group absolute right-6 bottom-6 w-[66px] h-[66px] bg-[#0A3F30] text-[#C6A75E] flex items-center justify-center transition-colors hover:bg-[#115A46] border border-[rgba(198,167,94,0.2)]">
+                <ArrowUpRight size={26} className="arrow-nudge" />
               </button>
             </div>
           </div>
 
-          <div className="lg:col-span-5 flex flex-col gap-6">
+          <div className="load-rise load-rise-delay-2 lg:col-span-5 flex flex-col gap-6">
             <div className="relative h-[340px] lg:-mt-14 bg-[#EFE7DA] text-[#1C1C1C] shadow-[0_8px_24px_rgba(10,63,48,0.12)] overflow-hidden border border-[rgba(198,167,94,0.2)]">
               <div className="absolute left-0 top-0 h-full w-[40%] p-4 md:p-5 z-10">
                 <h3 className="text-[30px] font-extrabold uppercase leading-none">Exclusive Set</h3>
@@ -242,6 +254,8 @@ const Hero: React.FC = () => {
               <img
                 src={HERO_IMAGES.WOMAN_MODEL}
                 alt="Model wearing jewelry"
+                loading="lazy"
+                decoding="async"
                 className="absolute right-0 bottom-0 h-full w-[62%] object-cover object-center"
               />
             </div>

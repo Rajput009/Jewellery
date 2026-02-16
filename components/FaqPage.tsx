@@ -26,7 +26,7 @@ const FAQS = [
 
 const FaqPage: React.FC<FaqPageProps> = ({ onContact }) => {
   return (
-    <section className="bg-[#F6F1E8] text-[#1C1C1C] rounded-lg m-4 md:m-8 p-5 md:p-10">
+    <section className="bg-[#F6F1E8] text-[#1C1C1C] rounded-lg md:rounded-none m-4 md:m-0 p-5 md:p-10">
       <h1 className="text-3xl md:text-4xl font-light">Frequently Asked Questions</h1>
 
       <div className="mt-8 space-y-3 max-w-4xl">

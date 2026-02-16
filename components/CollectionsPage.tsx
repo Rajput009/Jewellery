@@ -1,5 +1,5 @@
 import React from 'react';
-import { Heart, ShoppingBag, Search, SlidersHorizontal, Diamond } from 'lucide-react';
+import { Heart, ShoppingBag, Search, SlidersHorizontal } from 'lucide-react';
 
 type Product = {
   id: string;
@@ -68,10 +68,10 @@ type CollectionsPageProps = {
 
 const CollectionsPage: React.FC<CollectionsPageProps> = ({ onViewProduct, onOpenSearch }) => {
   return (
-    <section className="bg-[#F6F1E8] text-[#1C1C1C] rounded-lg m-4 md:m-8 p-4 md:p-8">
+    <section className="bg-[#F6F1E8] text-[#1C1C1C] rounded-lg md:rounded-none m-4 md:m-0 p-4 md:p-8">
       <div className="rounded-lg overflow-hidden mb-8 md:mb-12">
         <div
-          className="h-[280px] md:h-[400px] bg-cover bg-center flex items-center"
+          className="h-[240px] md:h-[340px] bg-cover bg-center flex items-center"
           style={{
             backgroundImage:
               "linear-gradient(to right, rgba(10,63,48,0.85), rgba(10,63,48,0.12)), url('https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80&w=1600&auto=format&fit=crop')",
@@ -199,45 +199,6 @@ const CollectionsPage: React.FC<CollectionsPageProps> = ({ onViewProduct, onOpen
         </div>
       </div>
 
-      <footer className="mt-16 pt-10 px-6 md:px-8 pb-10 bg-[#0A3F30] border-t border-[rgba(198,167,94,0.15)] rounded-md">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 text-sm">
-          <div>
-            <div className="flex items-center gap-2 text-[#F6F1E8] mb-4">
-              <Diamond size={22} />
-              <h4 className="text-lg font-bold uppercase tracking-tight">Eluxee</h4>
-            </div>
-            <p className="text-[#E4DBCE] leading-relaxed">
-              Crafting timeless elegance. Every piece is a testament to fine craftsmanship and rare gems.
-            </p>
-          </div>
-          <div>
-            <h5 className="text-xs font-bold uppercase tracking-[0.2em] mb-5 text-[#F6F1E8]">Experience</h5>
-            <ul className="space-y-3 text-[#E4DBCE]">
-              <li>Personal Shopping</li>
-              <li>Bespoke Designs</li>
-              <li>Cleaning & Care</li>
-              <li>Virtual Consult</li>
-            </ul>
-          </div>
-          <div>
-            <h5 className="text-xs font-bold uppercase tracking-[0.2em] mb-5 text-[#F6F1E8]">About</h5>
-            <ul className="space-y-3 text-[#E4DBCE]">
-              <li>Our Heritage</li>
-              <li>Ethical Sourcing</li>
-              <li>Store Locations</li>
-              <li>Careers</li>
-            </ul>
-          </div>
-          <div>
-            <h5 className="text-xs font-bold uppercase tracking-[0.2em] mb-5 text-[#F6F1E8]">Atelier Letter</h5>
-            <p className="text-[#E4DBCE] mb-4">Subscribe for early access to new collections and private events.</p>
-            <div className="flex border-b border-[rgba(198,167,94,0.15)] pb-2">
-              <input className="bg-transparent outline-none w-full text-sm text-[#F6F1E8] placeholder:text-[#E4DBCE]/70" placeholder="Email Address" />
-              <button className="text-[#C6A75E] hover:text-[#B8954C] text-xs font-bold uppercase transition-colors">Join</button>
-            </div>
-          </div>
-        </div>
-      </footer>
     </section>
   );
 };

@@ -36,6 +36,24 @@ const App: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  React.useEffect(() => {
+    const preloadRoutes = () => {
+      void import('./components/CollectionsPage');
+      void import('./components/ProductDetailPage');
+      void import('./components/CartPage');
+      void import('./components/CheckoutPage');
+    };
+
+    const idle = (window as unknown as { requestIdleCallback?: (cb: () => void) => number }).requestIdleCallback;
+    if (idle) {
+      idle(preloadRoutes);
+      return;
+    }
+
+    const timer = window.setTimeout(preloadRoutes, 900);
+    return () => window.clearTimeout(timer);
+  }, []);
+
   const activeNav: 'collections' | 'new-arrivals' | 'about' | 'support' | null =
     location.pathname.startsWith('/collections') ||
     location.pathname.startsWith('/product/') ||
@@ -77,7 +95,7 @@ const App: React.FC = () => {
                 <>
                   <Hero />
                   <BentoGrid />
-                  <ForgottenTreasures />
+                  <ForgottenTreasures onOpenProduct={(productId) => navigate(`/product/${productId}`)} />
                   <HomeFooter
                     currentPath={location.pathname}
                     onOpenCollections={() => navigate('/collections')}
