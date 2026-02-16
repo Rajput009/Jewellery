@@ -5,6 +5,7 @@ import Hero from './components/Hero';
 import BentoGrid from './components/BentoGrid';
 import ForgottenTreasures from './components/ForgottenTreasures';
 import HomeFooter from './components/HomeFooter';
+import ChatBot from './components/ChatBot';
 
 const CollectionsPage = React.lazy(() => import('./components/CollectionsPage'));
 const CheckoutPage = React.lazy(() => import('./components/CheckoutPage'));
@@ -183,6 +184,8 @@ const App: React.FC = () => {
           />
         ) : null}
       </div>
+
+      <ChatBot onOpenProduct={(productId) => navigate(`/product/${productId}`)} onOpenCollections={() => navigate('/collections')} />
 
       <div className="fixed top-0 left-0 w-full h-full pointer-events-none z-[-1] overflow-hidden">
         <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#115A46] rounded-full blur-[120px] opacity-35 mix-blend-screen" />
