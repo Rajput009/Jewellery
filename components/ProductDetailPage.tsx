@@ -1,6 +1,12 @@
-﻿import React from 'react';
-import { ArrowLeft, ShieldCheck, Truck, Sparkles } from 'lucide-react';
+import React from 'react';
+import { ArrowLeft, CheckCircle2, ChevronRight, Heart, ShoppingBag, Sparkles, Truck } from 'lucide-react';
 import { trackEvent } from '../services/analytics';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { addCartItem } from '../api/cart';
+import { getProductByPublicIdOrSlug, recommendProducts } from '../api/products';
+import type { ProductCard, ProductDetail } from '../api/types';
+import { addWishlistItem } from '../api/wishlist';
+import { getCurrentUser } from '../api/auth';
 
 type ProductDetailPageProps = {
   onBackToCollections?: () => void;
@@ -9,14 +15,61 @@ type ProductDetailPageProps = {
 };
 
 const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ onBackToCollections, onAddToBag, onOpenProduct }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { productId = 'c4' } = useParams();
+  const [product, setProduct] = React.useState<ProductDetail | null>(null);
+  const [recommended, setRecommended] = React.useState<ProductCard[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+
   React.useEffect(() => {
     trackEvent('view_upsell', { placement: 'product_detail', section: 'you_may_also_like' });
-    trackEvent('view_upsell', { placement: 'product_detail', section: 'complete_the_look' });
-    trackEvent('view_upsell', { placement: 'product_detail', section: 'premium_upgrade_option' });
   }, []);
 
+  React.useEffect(() => {
+    const run = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const productData = await getProductByPublicIdOrSlug(productId);
+        setProduct(productData);
+        const picks = await recommendProducts({ query: productData?.name ?? 'ring', limit: 4 });
+        setRecommended(picks.filter((item) => item.id !== productData?.id).slice(0, 4));
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Unable to load product');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void run();
+  }, [productId]);
+
+  const redirectToLogin = React.useCallback(() => {
+    const next = `${location.pathname}${location.search}`;
+    navigate(`/login?redirect=${encodeURIComponent(next)}`);
+  }, [location.pathname, location.search, navigate]);
+
+  const current = product ?? {
+    id: 'unknown',
+    slug: 'unknown',
+    name: 'Product',
+    collection: 'Collection',
+    priceLabel: '$0',
+    description: '',
+    metal: 'N/A',
+    gemstone: 'N/A',
+    images: [{ url: '', alt: 'Product image' }],
+    variants: [],
+  };
+
+  const mainImage = current.images[0]?.url ?? '';
+  const sideImageA = current.images[1]?.url ?? current.images[0]?.url ?? '';
+  const sideImageB = current.images[2]?.url ?? current.images[0]?.url ?? '';
+
   return (
-    <section className="bg-[#F6F1E8] text-[#1C1C1C] rounded-lg m-4 md:m-8 p-5 md:p-10">
+    <section className="bg-[#F6F1E8] text-[#1C1C1C] m-4 md:m-0 px-5 md:px-10 py-8 md:py-10">
       <button
         type="button"
         onClick={onBackToCollections}
@@ -26,123 +79,194 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ onBackToCollectio
         Back to Collections
       </button>
 
-      <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-        <div className="bg-[#EFE7DA] border border-[rgba(198,167,94,0.22)] rounded-sm overflow-hidden">
-          <img
-            src="https://images.unsplash.com/photo-1605100804763-247f67b3557e?q=80&w=1200&auto=format&fit=crop"
-            alt="Eternal Diamond Solitaire Ring"
-            className="w-full h-full object-cover min-h-[340px]"
-          />
+      <nav className="mt-6 flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-[#0E4F3C]/70">
+        <button type="button" onClick={onBackToCollections} className="hover:text-[#0E4F3C]">
+          Home
+        </button>
+        <ChevronRight size={12} />
+        <button type="button" onClick={onBackToCollections} className="hover:text-[#0E4F3C]">
+          Fine Jewelry
+        </button>
+        <ChevronRight size={12} />
+        <button type="button" onClick={onBackToCollections} className="hover:text-[#0E4F3C]">
+          Rings
+        </button>
+        <ChevronRight size={12} />
+        <span className="text-[#0E4F3C] font-semibold">{current.name}</span>
+      </nav>
+
+      {loading ? <p className="mt-6 text-sm text-[#6F6F6F]">Loading product...</p> : null}
+      {error ? <p className="mt-6 text-sm text-red-700">{error}</p> : null}
+
+      <div className="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14">
+        <div className="lg:col-span-7 space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="col-span-2 bg-white border border-[rgba(198,167,94,0.18)] overflow-hidden">
+              <img
+                src={mainImage}
+                alt={current.images[0]?.alt ?? current.name}
+                className="w-full h-[460px] md:h-[580px] object-cover transition-transform duration-700 hover:scale-105"
+              />
+            </div>
+            <div className="bg-white border border-[rgba(198,167,94,0.18)] overflow-hidden h-64 md:h-72">
+              <img
+                src={sideImageA}
+                alt="Emerald gemstone detail"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="bg-white border border-[rgba(198,167,94,0.18)] overflow-hidden h-64 md:h-72">
+              <img
+                src={sideImageB}
+                alt="Lifestyle hand shot"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
         </div>
 
-        <div>
-          <p className="text-[11px] uppercase tracking-[0.24em] text-[#0E4F3C] font-semibold">Bridal Collection</p>
-          <p className="mt-2 text-xs uppercase tracking-[0.2em] text-[#6F6F6F]">287 shoppers added this in the last 7 days</p>
-          <h1 className="mt-3 text-3xl md:text-4xl font-light leading-tight text-[#1C1C1C]">
-            Eternal Diamond Solitaire
-          </h1>
-          <p className="mt-4 text-2xl font-semibold">$2,450</p>
-          <p className="mt-1 text-xs text-[#6F6F6F] line-through">$2,900 retail value</p>
-
-          <p className="mt-6 text-sm leading-relaxed text-[#4D4D4D]">
-            A timeless round-cut solitaire set in 18k yellow gold. Designed for bold elegance with a refined, everyday silhouette.
-          </p>
-
-          <div className="mt-6 grid grid-cols-2 gap-3 text-xs uppercase tracking-wider">
-            <div className="border border-[rgba(198,167,94,0.22)] bg-white p-3">18k Yellow Gold</div>
-            <div className="border border-[rgba(198,167,94,0.22)] bg-white p-3">1.2 Carat</div>
-            <div className="border border-[rgba(198,167,94,0.22)] bg-white p-3">Ring Size 6</div>
-            <div className="border border-[rgba(198,167,94,0.22)] bg-white p-3">Conflict-Free</div>
+        <aside className="lg:col-span-5 lg:sticky lg:top-28 self-start space-y-7">
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.3em] text-[#0E4F3C]/70 font-semibold">{current.collection}</p>
+            <h1 className="mt-2 font-serif text-4xl md:text-5xl leading-tight">{current.name}</h1>
+            <p className="mt-3 text-3xl font-light text-[#0E4F3C]">{current.priceLabel}</p>
           </div>
 
-          <div className="mt-7 flex flex-col sm:flex-row gap-3">
+          <p className="text-[#4D4D4D] leading-relaxed text-sm md:text-base">
+            {current.description}
+          </p>
+
+          <div className="space-y-6 pt-2">
+            <div>
+              <div className="flex items-center justify-between text-xs uppercase tracking-widest mb-3">
+                <span>Select Size</span>
+                <button type="button" className="underline text-[#0E4F3C]/70 hover:text-[#0E4F3C]">
+                  Size Guide
+                </button>
+              </div>
+              <div className="grid grid-cols-5 gap-2">
+                <button className="border border-[#0E4F3C] bg-[#0E4F3C] text-[#F6F1E8] py-3 text-xs font-bold">5</button>
+                <button className="border border-[rgba(198,167,94,0.25)] py-3 text-xs hover:border-[#C6A75E]">6</button>
+                <button className="border border-[rgba(198,167,94,0.25)] py-3 text-xs hover:border-[#C6A75E]">7</button>
+                <button className="border border-[rgba(198,167,94,0.25)] py-3 text-xs hover:border-[#C6A75E]">8</button>
+                <button className="border border-[rgba(198,167,94,0.25)] py-3 text-xs hover:border-[#C6A75E]">9</button>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs uppercase tracking-widest mb-2">Complimentary Engraving</label>
+              <input
+                type="text"
+                placeholder="Up to 15 characters"
+                className="w-full bg-white border border-[rgba(198,167,94,0.25)] px-4 py-3 text-sm outline-none focus:border-[#C6A75E]"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-3 pt-2">
             <button
               type="button"
-              onClick={() => {
-                trackEvent('click_upsell', { placement: 'product_detail', action: 'add_to_bag_primary' });
-                onAddToBag?.();
+              onClick={async () => {
+                try {
+                  await addCartItem(current.id, 1);
+                  onAddToBag?.();
+                } catch {
+                  // Keep UI responsive even if cart sync fails.
+                }
               }}
-              className="px-7 py-3 bg-[#C6A75E] text-[#1C1C1C] text-xs md:text-sm font-bold uppercase tracking-[0.2em] hover:bg-[#B8954C] transition-colors"
+              className="w-full bg-[#0A3F30] text-[#F6F1E8] py-4 font-bold uppercase tracking-[0.2em] text-sm hover:bg-[#115A46] transition-colors inline-flex items-center justify-center gap-2"
             >
+              <ShoppingBag size={16} />
               Add to Bag
             </button>
             <button
               type="button"
-              className="px-7 py-3 border border-[rgba(198,167,94,0.5)] text-[#0E4F3C] text-xs md:text-sm font-bold uppercase tracking-[0.2em] hover:bg-[#EFE7DA] transition-colors"
+              className="w-full border border-[rgba(198,167,94,0.35)] text-[#0E4F3C] py-4 font-bold uppercase tracking-[0.2em] text-sm hover:bg-[#EFE7DA]"
             >
-              Save to Wishlist
+              Book a Private Viewing
             </button>
           </div>
-          <p className="mt-3 text-xs text-[#4D4D4D] uppercase tracking-wider">Only 5 pieces left in this finish</p>
 
-          <div className="mt-8 space-y-3 text-sm text-[#4D4D4D]">
-            <p className="inline-flex items-center gap-2"><Truck size={16} className="text-[#0E4F3C]" /> Complimentary delivery in 3-5 business days</p>
-            <p className="inline-flex items-center gap-2"><ShieldCheck size={16} className="text-[#0E4F3C]" /> Authenticity and lifetime maintenance included</p>
-            <p className="inline-flex items-center gap-2"><Sparkles size={16} className="text-[#0E4F3C]" /> Personal engraving available at checkout</p>
+          <div className="flex flex-col sm:flex-row gap-4 text-[11px] uppercase tracking-wide font-semibold">
+            <p className="inline-flex items-center gap-2">
+              <CheckCircle2 size={15} className="text-[#0E4F3C]" />
+              In Stock & Ready to Ship
+            </p>
+            <p className="inline-flex items-center gap-2">
+              <Truck size={15} className="text-[#0E4F3C]" />
+              Free Insured Delivery
+            </p>
           </div>
-          <div className="mt-6 p-4 bg-[#EFE7DA] border border-[rgba(198,167,94,0.22)] text-sm text-[#4D4D4D]">
-            30-day easy returns and size exchange.
-            <span className="font-semibold text-[#1C1C1C]"> Try risk-free.</span>
+
+          <div className="border-t border-[rgba(198,167,94,0.2)] pt-5 space-y-3">
+            <details className="border-b border-[rgba(198,167,94,0.2)] pb-4" open>
+              <summary className="cursor-pointer list-none flex items-center justify-between">
+                <span className="font-serif text-lg">Product Details</span>
+                <span className="text-[#0E4F3C]">+</span>
+              </summary>
+              <div className="mt-4 text-sm text-[#4D4D4D] space-y-2">
+                <p className="flex justify-between"><span className="font-semibold">Material</span><span>{current.metal}</span></p>
+                <p className="flex justify-between"><span className="font-semibold">Gemstone</span><span>{current.gemstone}</span></p>
+                <p className="flex justify-between"><span className="font-semibold">Cut</span><span>{current.gemstone?.includes('Emerald') ? 'Emerald Cut' : 'Premium Cut'}</span></p>
+                <p className="flex justify-between"><span className="font-semibold">Origin</span><span>Handcrafted in Italy</span></p>
+              </div>
+            </details>
+            <details className="border-b border-[rgba(198,167,94,0.2)] pb-4">
+              <summary className="cursor-pointer list-none flex items-center justify-between">
+                <span className="font-serif text-lg">Shipping & Returns</span>
+                <span className="text-[#0E4F3C]">+</span>
+              </summary>
+              <p className="mt-4 text-sm text-[#4D4D4D] leading-relaxed">
+                Complimentary worldwide shipping in signature packaging. Returns accepted within 30 days for exchange or refund.
+              </p>
+            </details>
           </div>
-        </div>
+        </aside>
       </div>
 
-      <section className="mt-12">
-        <h2 className="text-2xl font-light">You May Also Like</h2>
-        <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[
-            { id: 'c2', name: 'Emerald Halo Ring', price: '$2,980', image: 'https://images.unsplash.com/photo-1611085583191-a3b181a88401?q=80&w=600&auto=format&fit=crop' },
-            { id: 'c3', name: 'Verde Signet Ring', price: '$3,220', image: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80&w=600&auto=format&fit=crop' },
-            { id: 'c4', name: 'Ivory Solitaire Ring', price: '$2,150', image: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?q=80&w=600&auto=format&fit=crop' },
-          ].map((item) => (
-            <article key={item.name} className="bg-white border border-[rgba(198,167,94,0.18)] p-3">
-              <img src={item.image} alt={item.name} className="w-full h-48 object-cover" />
-              <p className="mt-3 text-sm font-medium">{item.name}</p>
-              <p className="text-sm text-[#0E4F3C] font-semibold">{item.price}</p>
-              <button
-                type="button"
-                onClick={() => {
-                  trackEvent('click_upsell', { placement: 'product_detail', section: 'you_may_also_like', product_id: item.id });
-                  onOpenProduct?.(item.id);
-                }}
-                className="mt-3 text-xs uppercase tracking-widest text-[#0E4F3C] font-semibold hover:text-[#B8954C]"
-              >
-                View
-              </button>
+      <section className="mt-20 border-t border-[rgba(198,167,94,0.2)] pt-14 pb-10">
+        <div className="flex justify-between items-end mb-10">
+          <h2 className="font-serif text-3xl md:text-4xl">You May Also Like</h2>
+          <button type="button" onClick={onBackToCollections} className="text-xs uppercase tracking-widest font-bold border-b border-[#0E4F3C] pb-1">
+            View Collection
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {recommended.map((item) => (
+            <article key={item.id} className="group cursor-pointer" onClick={() => onOpenProduct?.(item.id)}>
+              <div className="aspect-square bg-white border border-[rgba(198,167,94,0.18)] overflow-hidden mb-4 relative">
+                <img src={item.image} alt={item.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                <button
+                  type="button"
+                  className="absolute top-3 right-3 bg-[#F6F1E8]/90 p-1.5 rounded-full text-[#0E4F3C] opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    void (async () => {
+                      try {
+                        const user = await getCurrentUser();
+                        if (!user) {
+                          redirectToLogin();
+                          return;
+                        }
+                        await addWishlistItem(item.id);
+                      } catch {
+                        redirectToLogin();
+                      }
+                    })();
+                  }}
+                >
+                  <Heart size={14} />
+                </button>
+              </div>
+              <h3 className="font-serif text-lg">{item.name}</h3>
+              <p className="text-sm text-[#0E4F3C]/80 font-medium">{item.priceLabel}</p>
             </article>
           ))}
         </div>
       </section>
 
-      <section className="mt-10 bg-[#EFE7DA] border border-[rgba(198,167,94,0.22)] p-5 md:p-6">
-        <h2 className="text-2xl font-light">Complete the Look</h2>
-        <p className="mt-2 text-sm text-[#4D4D4D]">Curated pieces from the same emerald-gold line.</p>
-        <div className="mt-5 grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[
-            { id: 'c5', name: 'Emerald Drop Earrings', price: '$1,240' },
-            { id: 'c6', name: 'Emerald Pendant Necklace', price: '$1,680' },
-            { id: 'c1', name: 'Slim Emerald Bracelet', price: '$980' },
-          ].map((item) => (
-            <article key={item.name} className="bg-white border border-[rgba(198,167,94,0.18)] p-4">
-              <p className="text-[10px] uppercase tracking-[0.2em] text-[#6F6F6F]">Matched Set</p>
-              <p className="mt-1 font-medium">{item.name}</p>
-              <p className="text-[#0E4F3C] font-semibold">{item.price}</p>
-              <button
-                type="button"
-                onClick={() => {
-                  trackEvent('click_upsell', { placement: 'product_detail', section: 'complete_the_look', product_id: item.id });
-                  onOpenProduct?.(item.id);
-                }}
-                className="mt-3 text-xs uppercase tracking-widest text-[#0E4F3C] font-semibold hover:text-[#B8954C]"
-              >
-                View
-              </button>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="mt-8 bg-white border border-[rgba(198,167,94,0.22)] p-5 md:p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <section className="mt-4 bg-white border border-[rgba(198,167,94,0.2)] p-5 md:p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <p className="text-[10px] uppercase tracking-[0.2em] text-[#6F6F6F]">Premium Upgrade Option</p>
           <h3 className="mt-1 text-xl font-medium">2.0 Carat Signature Emerald Cut</h3>
@@ -154,8 +278,9 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ onBackToCollectio
             trackEvent('click_upsell', { placement: 'product_detail', section: 'premium_upgrade_option', product_id: 'upgrade-emerald-cut' });
             onOpenProduct?.('upgrade-emerald-cut');
           }}
-          className="px-6 py-3 bg-[#0A3F30] text-[#F6F1E8] text-xs font-bold uppercase tracking-[0.2em] hover:bg-[#115A46] transition-colors"
+          className="px-6 py-3 bg-[#0A3F30] text-[#F6F1E8] text-xs font-bold uppercase tracking-[0.2em] hover:bg-[#115A46] transition-colors inline-flex items-center gap-2"
         >
+          <Sparkles size={14} />
           View Upgrade
         </button>
       </section>

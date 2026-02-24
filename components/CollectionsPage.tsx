@@ -1,65 +1,10 @@
 import React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Heart, ShoppingBag, Search, SlidersHorizontal } from 'lucide-react';
-
-type Product = {
-  id: string;
-  name: string;
-  collection: string;
-  price: string;
-  details: string;
-  image: string;
-};
-
-const PRODUCTS: Product[] = [
-  {
-    id: 'c1',
-    name: 'Eternal Diamond Solitaire',
-    collection: 'Bridal Collection',
-    price: '$2,450',
-    details: '18k Yellow Gold - 1.2 Carat',
-    image: 'https://images.unsplash.com/photo-1617038220319-276d3cfab638?q=80&w=900&auto=format&fit=crop',
-  },
-  {
-    id: 'c2',
-    name: 'Sapphire Halo Orbit',
-    collection: 'Modern Muse',
-    price: '$1,890',
-    details: 'Platinum - Blue Sapphire',
-    image: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?q=80&w=900&auto=format&fit=crop',
-  },
-  {
-    id: 'c3',
-    name: 'Dainty Pave Stack Band',
-    collection: 'Minimalist',
-    price: '$1,200',
-    details: '18k Rose Gold - Recycled Diamonds',
-    image: 'https://images.unsplash.com/photo-1602173574767-37ac01994b2a?q=80&w=900&auto=format&fit=crop',
-  },
-  {
-    id: 'c4',
-    name: 'Vintage Emerald Cut',
-    collection: 'Heritage',
-    price: '$3,150',
-    details: '18k Yellow Gold - Emerald Cut',
-    image: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?q=80&w=900&auto=format&fit=crop',
-  },
-  {
-    id: 'c5',
-    name: 'Grand Gatsby Signet',
-    collection: 'Art Deco',
-    price: '$2,780',
-    details: '18k White Gold - Custom Intaglio',
-    image: 'https://images.unsplash.com/photo-1611085583191-a3b181a88401?q=80&w=900&auto=format&fit=crop',
-  },
-  {
-    id: 'c6',
-    name: 'Infinity Vine Band',
-    collection: 'The Twist',
-    price: '$950',
-    details: '14k Yellow Gold - Conflict Free',
-    image: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=900&auto=format&fit=crop',
-  },
-];
+import { listProducts } from '../api/products';
+import type { ProductCard } from '../api/types';
+import { addWishlistItem } from '../api/wishlist';
+import { getCurrentUser } from '../api/auth';
 
 type CollectionsPageProps = {
   onViewProduct?: (productId: string) => void;
@@ -67,6 +12,35 @@ type CollectionsPageProps = {
 };
 
 const CollectionsPage: React.FC<CollectionsPageProps> = ({ onViewProduct, onOpenSearch }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [products, setProducts] = React.useState<ProductCard[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+  const [query, setQuery] = React.useState('');
+
+  React.useEffect(() => {
+    const run = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const items = await listProducts({ limit: 24, search: query || undefined });
+        setProducts(items);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Unable to load products.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void run();
+  }, [query]);
+
+  const redirectToLogin = React.useCallback(() => {
+    const next = `${location.pathname}${location.search}`;
+    navigate(`/login?redirect=${encodeURIComponent(next)}`);
+  }, [location.pathname, location.search, navigate]);
+
   return (
     <section className="bg-[#F6F1E8] text-[#1C1C1C] rounded-lg md:rounded-none m-4 md:m-0 p-4 md:p-8">
       <div className="rounded-lg overflow-hidden mb-8 md:mb-12">
@@ -125,7 +99,12 @@ const CollectionsPage: React.FC<CollectionsPageProps> = ({ onViewProduct, onOpen
                 <p className="text-sm font-semibold mb-4 uppercase tracking-tight">Search</p>
                 <div className="flex items-center border border-[rgba(198,167,94,0.2)] px-3 py-2 bg-white">
                   <Search size={16} className="text-[#0E4F3C]/70" />
-                  <input className="ml-2 bg-transparent w-full text-sm outline-none" placeholder="Search collection..." />
+                  <input
+                    className="ml-2 bg-transparent w-full text-sm outline-none"
+                    placeholder="Search collection..."
+                    value={query}
+                    onChange={(event) => setQuery(event.target.value)}
+                  />
                   <button
                     type="button"
                     onClick={onOpenSearch}
@@ -142,7 +121,7 @@ const CollectionsPage: React.FC<CollectionsPageProps> = ({ onViewProduct, onOpen
         <div className="flex-1">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
             <h2 className="text-2xl font-light tracking-tight">
-              Fine Rings <span className="text-base text-[#6F6F6F]">(42 items)</span>
+              Fine Rings <span className="text-base text-[#6F6F6F]">({products.length} items)</span>
             </h2>
             <div className="flex items-center gap-3 text-sm">
               <span className="text-xs font-bold uppercase tracking-widest text-[#6F6F6F]">Sort By</span>
@@ -155,8 +134,11 @@ const CollectionsPage: React.FC<CollectionsPageProps> = ({ onViewProduct, onOpen
             </div>
           </div>
 
+          {loading ? <p className="text-sm text-[#6F6F6F]">Loading products...</p> : null}
+          {error ? <p className="text-sm text-red-700">{error}</p> : null}
+
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-10">
-            {PRODUCTS.map((product) => (
+            {products.map((product) => (
               <article
                 key={product.id}
                 className="group cursor-pointer"
@@ -169,7 +151,25 @@ const CollectionsPage: React.FC<CollectionsPageProps> = ({ onViewProduct, onOpen
                     </span>
                   ) : null}
                   <img src={product.image} alt={product.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                  <button className="absolute top-4 right-4 text-[#F6F1E8] drop-shadow-md hover:text-[#C6A75E] transition-colors">
+                  <button
+                    className="absolute top-4 right-4 text-[#F6F1E8] drop-shadow-md hover:text-[#C6A75E] transition-colors"
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      void (async () => {
+                        try {
+                          const user = await getCurrentUser();
+                          if (!user) {
+                            redirectToLogin();
+                            return;
+                          }
+                          await addWishlistItem(product.id);
+                        } catch {
+                          redirectToLogin();
+                        }
+                      })();
+                    }}
+                  >
                     <Heart size={20} />
                   </button>
                   <div className="absolute bottom-4 left-4 right-4 bg-white/92 backdrop-blur-sm py-3 text-center opacity-0 translate-y-4 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0 shadow-lg">
@@ -181,7 +181,7 @@ const CollectionsPage: React.FC<CollectionsPageProps> = ({ onViewProduct, onOpen
                 </div>
                 <p className="text-[10px] uppercase tracking-[0.2em] text-[#6F6F6F] font-bold">{product.collection}</p>
                 <h3 className="text-sm mt-1 font-medium group-hover:text-[#0E4F3C] transition-colors">{product.name}</h3>
-                <p className="text-sm mt-1 font-bold text-[#1C1C1C] tracking-tight">{product.price}</p>
+                <p className="text-sm mt-1 font-bold text-[#1C1C1C] tracking-tight">{product.priceLabel}</p>
                 <p className="text-[10px] mt-1 text-[#6F6F6F] font-medium">{product.details}</p>
               </article>
             ))}

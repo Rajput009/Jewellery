@@ -1,175 +1,72 @@
 import React from 'react';
 import { Gem, Send, Sparkles, X } from 'lucide-react';
+import { getChatRecommendations, type ChatRecommendation } from '../api/chat';
 
 type ChatBotProps = {
   onOpenProduct: (productId: string) => void;
   onOpenCollections: () => void;
 };
 
-type ProductRecommendation = {
-  id: string;
-  name: string;
-  price: string;
-  reason: string;
-  tags: string[];
-};
-
 type ChatMessage = {
   id: string;
   role: 'user' | 'bot';
   text: string;
-  recommendations?: ProductRecommendation[];
+  recommendations?: ChatRecommendation[];
 };
-
-const PRODUCT_POOL: ProductRecommendation[] = [
-  {
-    id: 'c1',
-    name: 'Eternal Diamond Solitaire',
-    price: '$2,450',
-    reason: 'Great for engagements and elegant evening looks.',
-    tags: ['wedding', 'engagement', 'bridal', 'formal', 'classic', 'statement', 'cool', 'neutral', 'white', 'black'],
-  },
-  {
-    id: 'c2',
-    name: 'Sapphire Halo Orbit',
-    price: '$1,890',
-    reason: 'Pairs beautifully with cool palettes and modern styling.',
-    tags: ['party', 'formal', 'modern', 'cool', 'neutral', 'blue', 'black', 'silver'],
-  },
-  {
-    id: 'c3',
-    name: 'Dainty Pave Stack Band',
-    price: '$1,200',
-    reason: 'Minimal and versatile for everyday outfits.',
-    tags: ['casual', 'daily', 'office', 'minimal', 'warm', 'neutral', 'pastel', 'white'],
-  },
-  {
-    id: 'c4',
-    name: 'Vintage Emerald Cut',
-    price: '$3,150',
-    reason: 'Best for luxe vintage styling and rich dress tones.',
-    tags: ['wedding', 'anniversary', 'vintage', 'statement', 'warm', 'neutral', 'green', 'gold', 'red'],
-  },
-  {
-    id: 'c5',
-    name: 'Grand Gatsby Signet',
-    price: '$2,780',
-    reason: 'A bold piece for events and dressy evenings.',
-    tags: ['party', 'formal', 'vintage', 'statement', 'warm', 'cool', 'black', 'gold'],
-  },
-  {
-    id: 'c6',
-    name: 'Infinity Vine Band',
-    price: '$950',
-    reason: 'Soft and elegant option for gifting and daily wear.',
-    tags: ['gift', 'daily', 'casual', 'minimal', 'warm', 'neutral', 'pastel', 'gold', 'white'],
-  },
-];
 
 const QUICK_PROMPTS = [
   'Wedding guest look',
+  'Shaadi ke liye recommendation',
   'I have warm skin tone',
+  'Meri skin tone warm hai',
   'Black dress for evening party',
   'Daily wear under $1500',
 ];
 
-const tokenize = (input: string): string[] =>
-  input
-    .toLowerCase()
-    .replace(/[^a-z0-9\s]/g, ' ')
-    .split(/\s+/)
-    .filter(Boolean);
-
-const normalizeTokens = (tokens: string[]): string[] => {
-  const expanded = new Set(tokens);
-
-  if (expanded.has('wedding') || expanded.has('bridal')) {
-    expanded.add('engagement');
-    expanded.add('formal');
-  }
-  if (expanded.has('office')) expanded.add('daily');
-  if (expanded.has('everyday')) expanded.add('daily');
-  if (expanded.has('simple')) expanded.add('minimal');
-  if (expanded.has('bold')) expanded.add('statement');
-  if (expanded.has('gown')) expanded.add('formal');
-  if (expanded.has('dark')) expanded.add('deep');
-  if (expanded.has('brown')) expanded.add('warm');
-  if (expanded.has('fair')) expanded.add('cool');
-
-  return Array.from(expanded);
-};
-
-const recommendProducts = (query: string): ProductRecommendation[] => {
-  const tokens = normalizeTokens(tokenize(query));
-  const scored = PRODUCT_POOL.map((product) => {
-    const score = tokens.reduce((acc, token) => acc + (product.tags.includes(token) ? 1 : 0), 0);
-    return { product, score };
-  })
-    .filter((entry) => entry.score > 0)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 3)
-    .map((entry) => entry.product);
-
-  return scored.length > 0 ? scored : PRODUCT_POOL.slice(0, 3);
-};
-
-const buildResponse = (query: string): ChatMessage => {
-  const lower = query.toLowerCase();
-
-  if (!lower.trim()) {
-    return {
-      id: crypto.randomUUID(),
-      role: 'bot',
-      text: 'Tell me your occasion, dress color, style preference, or skin tone and I will suggest pieces.',
-    };
-  }
-
-  if (/(hello|hi|hey)/.test(lower)) {
-    return {
-      id: crypto.randomUUID(),
-      role: 'bot',
-      text: 'Hi. I can help you choose jewelry by occasion, outfit color, style, budget, and skin tone.',
-    };
-  }
-
-  const picks = recommendProducts(query);
-  const hasOccasion = /(wedding|engagement|party|office|date|gift|anniversary|casual|daily)/.test(lower);
-  const hasColor = /(black|white|red|green|blue|gold|silver|pastel)/.test(lower);
-  const hasTone = /(warm|cool|neutral|fair|deep|dark|medium)/.test(lower);
-
-  let intro = 'Based on your preferences, these should suit you:';
-  if (hasOccasion && hasColor) intro = 'Great match. For that occasion and dress color, I recommend:';
-  else if (hasOccasion) intro = 'For your occasion, these are strong picks:';
-  else if (hasTone) intro = 'For your skin tone, these should complement you well:';
-  else if (hasColor) intro = 'For that dress color, these pieces will pair nicely:';
-
-  return {
-    id: crypto.randomUUID(),
-    role: 'bot',
-    text: `${intro} ${picks.map((p) => p.name).join(', ')}.`,
-    recommendations: picks,
-  };
-};
-
 const ChatBot: React.FC<ChatBotProps> = ({ onOpenProduct, onOpenCollections }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const [input, setInput] = React.useState('');
+  const [loading, setLoading] = React.useState(false);
   const [messages, setMessages] = React.useState<ChatMessage[]>([
     {
       id: crypto.randomUUID(),
       role: 'bot',
-      text: 'I can recommend jewelry based on your occasion, dress color, skin tone, and style. What are you dressing for?',
+      text: 'Do you need recommendations, or are you looking for jewelry for a specific occasion? Aap English ya Roman Urdu dono mein pooch sakte hain.',
     },
   ]);
 
-  const sendMessage = (rawText: string) => {
+  const sendMessage = async (rawText: string) => {
     const text = rawText.trim();
     if (!text) return;
 
     const userMessage: ChatMessage = { id: crypto.randomUUID(), role: 'user', text };
-    const botMessage = buildResponse(text);
-    setMessages((prev) => [...prev, userMessage, botMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     setInput('');
+
+    try {
+      setLoading(true);
+      const response = await getChatRecommendations(text);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: crypto.randomUUID(),
+          role: 'bot',
+          text: response.text,
+          recommendations: response.recommendations,
+        },
+      ]);
+    } catch (err) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: crypto.randomUUID(),
+          role: 'bot',
+          text: err instanceof Error ? err.message : 'Unable to fetch recommendations right now.',
+        },
+      ]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -229,7 +126,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ onOpenProduct, onOpenCollections }) =
               <button
                 key={prompt}
                 type="button"
-                onClick={() => sendMessage(prompt)}
+                onClick={() => void sendMessage(prompt)}
                 className="text-[10px] uppercase tracking-wide px-2 py-1 bg-[#EFE7DA] border border-[rgba(198,167,94,0.2)] hover:border-[rgba(198,167,94,0.45)]"
               >
                 {prompt}
@@ -239,18 +136,18 @@ const ChatBot: React.FC<ChatBotProps> = ({ onOpenProduct, onOpenCollections }) =
 
           <form
             className="p-3 border-t border-[rgba(198,167,94,0.2)] flex items-center gap-2"
-            onSubmit={(e) => {
-              e.preventDefault();
-              sendMessage(input);
+            onSubmit={(event) => {
+              event.preventDefault();
+              void sendMessage(input);
             }}
           >
             <input
               value={input}
-              onChange={(e) => setInput(e.target.value)}
+              onChange={(event) => setInput(event.target.value)}
               placeholder="Occasion, dress color, skin tone..."
               className="flex-1 bg-white border border-[rgba(198,167,94,0.2)] px-3 py-2 text-sm outline-none focus:border-[#C6A75E]"
             />
-            <button type="submit" className="w-10 h-10 bg-[#0A3F30] text-[#F6F1E8] flex items-center justify-center hover:bg-[#115A46]">
+            <button type="submit" className="w-10 h-10 bg-[#0A3F30] text-[#F6F1E8] flex items-center justify-center hover:bg-[#115A46]" disabled={loading}>
               <Send size={16} />
             </button>
           </form>

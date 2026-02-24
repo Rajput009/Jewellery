@@ -6,6 +6,7 @@ import BentoGrid from './components/BentoGrid';
 import ForgottenTreasures from './components/ForgottenTreasures';
 import HomeFooter from './components/HomeFooter';
 import ChatBot from './components/ChatBot';
+import LocationMeta from './components/LocationMeta';
 
 const CollectionsPage = React.lazy(() => import('./components/CollectionsPage'));
 const CheckoutPage = React.lazy(() => import('./components/CheckoutPage'));
@@ -26,6 +27,8 @@ const LoginPage = React.lazy(() => import('./components/LoginPage'));
 const RegisterPage = React.lazy(() => import('./components/RegisterPage'));
 const ForgotPasswordPage = React.lazy(() => import('./components/ForgotPasswordPage'));
 const NotFoundPage = React.lazy(() => import('./components/NotFoundPage'));
+const LocationIndexPage = React.lazy(() => import('./components/LocationIndexPage'));
+const LocationPage = React.lazy(() => import('./components/LocationPage'));
 
 const RouteFallback: React.FC = () => (
   <div className="m-4 md:m-8 rounded-lg bg-[#F6F1E8] text-[#1C1C1C] min-h-[40vh] flex items-center justify-center text-sm uppercase tracking-[0.2em]">
@@ -74,6 +77,7 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0A3F30] via-[#0E4F3C] to-[#115A46] font-sans overflow-x-hidden selection:bg-[#C6A75E]/30 selection:text-[#F6F1E8]">
+      <LocationMeta />
       <div className="max-w-[1600px] mx-auto relative shadow-2xl">
         <Navbar
           onCollectionsClick={() => navigate('/collections')}
@@ -135,7 +139,7 @@ const App: React.FC = () => {
                 />
               }
             />
-            <Route path="/checkout" element={<CheckoutPage onCompletePurchase={() => navigate('/confirmation')} />} />
+            <Route path="/checkout" element={<CheckoutPage onCompletePurchase={(orderNumber) => navigate(`/confirmation${orderNumber ? `?order=${encodeURIComponent(orderNumber)}` : ''}`)} />} />
             <Route
               path="/confirmation"
               element={
@@ -152,19 +156,21 @@ const App: React.FC = () => {
             <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
             <Route path="/terms-of-service" element={<TermsOfServicePage />} />
             <Route path="/faq" element={<FaqPage onContact={() => navigate('/contact')} />} />
-            <Route path="/search" element={<SearchResultsPage onSelectProduct={() => navigate('/product/c1')} />} />
+            <Route path="/search" element={<SearchResultsPage onSelectProduct={(productId) => navigate(`/product/${productId}`)} />} />
             <Route
               path="/login"
               element={
                 <LoginPage
                   onLoginSuccess={() => navigate('/account')}
-                  onOpenRegister={() => navigate('/register')}
-                  onOpenForgotPassword={() => navigate('/forgot-password')}
+                  onOpenRegister={() => navigate(`/register${location.search}`)}
+                  onOpenForgotPassword={() => navigate(`/forgot-password${location.search}`)}
                 />
               }
             />
-            <Route path="/register" element={<RegisterPage onOpenLogin={() => navigate('/login')} />} />
-            <Route path="/forgot-password" element={<ForgotPasswordPage onOpenLogin={() => navigate('/login')} />} />
+            <Route path="/register" element={<RegisterPage onOpenLogin={() => navigate(`/login${location.search}`)} />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage onOpenLogin={() => navigate(`/login${location.search}`)} />} />
+            <Route path="/pakistan" element={<LocationIndexPage />} />
+            <Route path="/pakistan/:citySlug" element={<LocationPage />} />
             <Route path="/404" element={<NotFoundPage onGoHome={() => navigate('/')} />} />
             <Route path="*" element={<Navigate to="/404" replace />} />
           </Routes>
